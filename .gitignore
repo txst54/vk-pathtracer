@@ -1,0 +1,59 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled dynamic libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Compiled static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug / profiling files
+*.pdb
+*.idb
+*.DS_Store
+*.stackdump
+*.core
+*.gch
+
+# CMake build directories
+build/
+cmake-build-*/
+bin/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Code::Blocks files
+*.depend
+*.layout
+
+# CLion / JetBrains files
+.idea/
+
+# Xcode
+*.xcworkspace
+*.xcuserstate
+
+# Makefile backup
+*~
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
