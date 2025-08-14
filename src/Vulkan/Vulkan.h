@@ -6,8 +6,10 @@
 #define VULKAN_PATH_TRACER_VULKAN_H
 
 #include <vulkan/vulkan.h>
+#include <string>
 
 namespace Vulkan {
+  std::string VK_DEVICE_TYPE(VkPhysicalDeviceType type);
   void VK_CHECK(VkResult result, const char* operation);
 } // Vulkan
 

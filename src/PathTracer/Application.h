@@ -9,6 +9,7 @@
 #include <memory>
 #include "../Vulkan/Instance.h"
 #include "../Vulkan/Window.h"
+#include "../Vulkan/Device.h"
 
 namespace PathTracer {
 class Application final
@@ -20,6 +21,7 @@ public:
 private:
   std::unique_ptr<Vulkan::Window> window;
   std::unique_ptr<Vulkan::Instance> instance;
+  std::unique_ptr<Vulkan::Device> device;
 };
 }
 

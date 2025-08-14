@@ -48,6 +48,19 @@ const char* GetErrorCode(const VkResult result)
 }
 
 namespace Vulkan {
+  std::string VK_DEVICE_TYPE(VkPhysicalDeviceType type) {
+    switch(type) {
+#define STR_TYPE(t) case VK_PHYSICAL_DEVICE_TYPE_ ##t: return #t
+      STR_TYPE(OTHER);
+      STR_TYPE(INTEGRATED_GPU);
+      STR_TYPE(DISCRETE_GPU);
+      STR_TYPE(VIRTUAL_GPU);
+      STR_TYPE(CPU);
+      default:
+        return "UNKOWN_DEVICE_TYPE";
+    }
+  }
+
   void VK_CHECK(VkResult result, const char* operation) {
     if (result != VK_SUCCESS)
     {

@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <cstring>
+#include <iostream>
 #include <GLFW/glfw3.h>
 #include "Instance.h"
 #include "Vulkan.h"
@@ -39,6 +40,8 @@ namespace Vulkan {
     }
 
     VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "Vulkan Instance Creation");
+
+    checkPhysicalDevice();
   }
 
   Instance::~Instance() {
@@ -48,13 +51,13 @@ namespace Vulkan {
     }
   }
 
-  std::vector<const char*> Instance::getRequiredInstanceExtensions() const {
+  std::vector<const char*> Instance::getRequiredInstanceExtensions() {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    return std::vector<const char*>(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    return {glfwExtensions, glfwExtensions + glfwExtensionCount};
   }
 
-  bool Instance::checkValidationLayerSupport(std::vector<const char*> layers) const {
+  bool Instance::checkValidationLayerSupport(const std::vector<const char*>& layers) {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -77,5 +80,34 @@ namespace Vulkan {
     }
 
     return true;
+  }
+
+  bool Instance::isPhysicalDeviceSuitable(VkPhysicalDevice device) {
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+  }
+
+  void Instance::checkPhysicalDevice() {
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    if (deviceCount == 0)
+    {
+      throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+    }
+
+    std::vector<VkPhysicalDevice> availableDevices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, availableDevices.data());
+    std::cout << "Available devices: \n";
+    for (const auto& device : availableDevices) {
+      if (isPhysicalDeviceSuitable(device)) {
+        devices.push_back(device);
+      }
+      VkPhysicalDeviceProperties properties;
+      vkGetPhysicalDeviceProperties(device, &properties);
+      std::cout << properties.deviceName << " | " << VK_DEVICE_TYPE(properties.deviceType) << "\n";
+    }
   }
 } // Vulkan

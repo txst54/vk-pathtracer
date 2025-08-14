@@ -5,6 +5,8 @@
 #include "Application.h"
 #include <GLFW/glfw3.h>
 
+#include <memory>
+
 namespace PathTracer {
   Application::Application() {
 #ifdef NDEBUG
@@ -13,8 +15,9 @@ namespace PathTracer {
     std::vector<const char*> layers = { "VK_LAYER_KHRONOS_validation" };
 #endif
 
-    window.reset(new Vulkan::Window());
-    instance.reset(new Vulkan::Instance(layers));
+    window = std::make_unique<Vulkan::Window>();
+    instance = std::make_unique<Vulkan::Instance>(layers);
+    device = std::make_unique<Vulkan::Device>(instance->getDevices().front());
   }
 
   void Application::run() {

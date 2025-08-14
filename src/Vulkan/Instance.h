@@ -13,18 +13,25 @@ namespace Vulkan {
   class Instance final {
   public:
 
-    Instance(std::vector<const char*> layers);
+    explicit Instance(std::vector<const char*> layers);
     ~Instance();
 
     [[nodiscard]] VkInstance get() const {
       return instance;
     }
 
+    [[nodiscard]] std::vector<VkPhysicalDevice> getDevices() const {
+      return devices;
+    }
+
   private:
     VkInstance instance{};
+    std::vector<VkPhysicalDevice> devices;
 
-    std::vector<const char*> getRequiredInstanceExtensions() const;
-    bool checkValidationLayerSupport(std::vector<const char*> layers) const;
+    [[nodiscard]] static std::vector<const char*> getRequiredInstanceExtensions() ;
+    [[nodiscard]] static bool isPhysicalDeviceSuitable(VkPhysicalDevice device);
+    static bool checkValidationLayerSupport(const std::vector<const char*>& layers) ;
+    void checkPhysicalDevice();
   };
 
 } // Vulkan
