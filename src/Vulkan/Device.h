@@ -5,8 +5,13 @@
 #ifndef VULKAN_PATH_TRACER_DEVICE_H
 #define VULKAN_PATH_TRACER_DEVICE_H
 #include <optional>
+#include "Surface.h"
 
 namespace Vulkan {
+  static const std::vector<const char*> deviceExtensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
+
   struct QueueFamily {
     std::optional<uint32_t> family;
     VkQueue queue{};
@@ -23,11 +28,26 @@ namespace Vulkan {
       queueCreateInfo.queueCount = 1;
       queueCreateInfo.pQueuePriorities = queuePriority;
     }
+
+    void setPresentQueue(QueueFamily candidateQueue, VkPhysicalDevice& physicalDevice,
+                         VkDevice& device, const Surface& surface) {
+      if (!candidateQueue.isComplete()) {
+        return;
+      }
+      uint32_t candidateFamily = candidateQueue.family.value();
+      VkBool32 presentSupport = VK_FALSE;
+      vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, candidateFamily, surface.get(), &presentSupport);
+      if (presentSupport) {
+        vkGetDeviceQueue(device, candidateFamily, 0, &queue);
+        family = candidateFamily;
+      }
+    }
   };
 
   struct QueueIndices {
     QueueFamily graphicsQueue{};
     QueueFamily computeQueue{};
+    QueueFamily presentQueue{};
 
     [[nodiscard]] std::vector<VkDeviceQueueCreateInfo> getQueueCreateInfos() const {
       std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
@@ -37,24 +57,44 @@ namespace Vulkan {
       return queueCreateInfos;
     }
 
+    void getPresentQueue(VkPhysicalDevice& physicalDevice, VkDevice& device, const Surface& surface) {
+      presentQueue.setPresentQueue(graphicsQueue, physicalDevice, device, surface);
+      presentQueue.setPresentQueue(computeQueue, physicalDevice, device, surface);
+    }
+
     void getDeviceQueues(VkDevice& device) {
 #define GET_DEVICE_QUEUE(q) if (q.isComplete()) vkGetDeviceQueue(device, q.family.value(), 0, &q.queue)
       GET_DEVICE_QUEUE(graphicsQueue);
       GET_DEVICE_QUEUE(computeQueue);
+      GET_DEVICE_QUEUE(presentQueue);
     }
   };
 
-  class Device {
+  class Device final {
   public:
-    explicit Device(VkPhysicalDevice device);
+    QueueIndices queueIndices{};
+
+    explicit Device(VkPhysicalDevice device, const Surface& surface);
     ~Device();
+
+    [[nodiscard]] VkDevice get() const {
+      return device;
+    }
+
+    [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const {
+      return physicalDevice;
+    }
+
+    [[nodiscard]] const Surface& getSurface() const {
+      return surface;
+    }
 
   private:
     VkPhysicalDevice physicalDevice;
-    QueueIndices queueIndices{};
     VkDevice device{};
+    const Surface& surface;
 
-    std::vector<QueueFamily> findQueueFamilies(VkPhysicalDevice device, const float *queuePriority);
+    void findQueueFamilies(VkPhysicalDevice device, const float *queuePriority);
   };
 
 } // Vulkan

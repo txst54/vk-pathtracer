@@ -21,6 +21,16 @@ set(src_files_vulkan
         Vulkan/Vulkan.h
         Vulkan/Device.cpp
         Vulkan/Device.h
+        Vulkan/Surface.cpp
+        Vulkan/Surface.h
+        Vulkan/SwapChain.cpp
+        Vulkan/SwapChain.h
+        Vulkan/ImageView.cpp
+        Vulkan/ImageView.h
+        Vulkan/GraphicsPipeline.cpp
+        Vulkan/GraphicsPipeline.h
+        Vulkan/Util.cpp
+        Vulkan/Util.h
 )
 
 set(src_files_pathtracer

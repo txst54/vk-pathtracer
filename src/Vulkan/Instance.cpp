@@ -3,11 +3,13 @@
 //
 
 #include <stdexcept>
+#include <set>
 #include <cstring>
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include "Instance.h"
 #include "Vulkan.h"
+#include "Device.h"
 
 namespace Vulkan {
   Instance::Instance(std::vector<const char*> layers) {
@@ -86,7 +88,24 @@ namespace Vulkan {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+      checkDeviceExtensionSupport(device);
+  }
+
+  bool Instance::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions) {
+      requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
   }
 
   void Instance::checkPhysicalDevice() {

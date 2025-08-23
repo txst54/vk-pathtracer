@@ -8,11 +8,11 @@
 #include "Vulkan.h"
 
 namespace Vulkan {
-  Device::Device(VkPhysicalDevice physicalDevice) :
-    physicalDevice(physicalDevice)
+  Device::Device(VkPhysicalDevice physicalDevice, const Surface& surface) :
+    physicalDevice(physicalDevice), surface(surface)
   {
     float queuePriority = 1.0;
-    auto indices = findQueueFamilies(physicalDevice, &queuePriority);
+    findQueueFamilies(physicalDevice, &queuePriority);
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = queueIndices.getQueueCreateInfos();
 
     VkPhysicalDeviceFeatures deviceFeatures{};
@@ -22,11 +22,13 @@ namespace Vulkan {
     createInfo.queueCreateInfoCount = 1;
 
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     createInfo.enabledLayerCount = 0;
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), "Create Vulkan logical device");
+    queueIndices.getPresentQueue(physicalDevice, device, surface);
     queueIndices.getDeviceQueues(device);
   }
 
@@ -37,9 +39,7 @@ namespace Vulkan {
     }
   }
 
-  std::vector<QueueFamily> Device::findQueueFamilies(VkPhysicalDevice device, const float* queuePriority) {
-    std::vector<QueueFamily> families;
-
+  void Device::findQueueFamilies(VkPhysicalDevice device, const float* queuePriority) {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -55,7 +55,5 @@ namespace Vulkan {
       }
       i++;
     }
-
-    return families;
   }
 } // Vulkan

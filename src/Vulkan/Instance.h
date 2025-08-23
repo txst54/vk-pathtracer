@@ -32,6 +32,8 @@ namespace Vulkan {
     [[nodiscard]] static bool isPhysicalDeviceSuitable(VkPhysicalDevice device);
     static bool checkValidationLayerSupport(const std::vector<const char*>& layers) ;
     void checkPhysicalDevice();
+
+    static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   };
 
 } // Vulkan

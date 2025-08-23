@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 
 #include <memory>
+#include <stdexcept>
+#include <fstream>
 
 namespace PathTracer {
   Application::Application() {
@@ -17,7 +19,10 @@ namespace PathTracer {
 
     window = std::make_unique<Vulkan::Window>();
     instance = std::make_unique<Vulkan::Instance>(layers);
-    device = std::make_unique<Vulkan::Device>(instance->getDevices().front());
+    surface = std::make_unique<Vulkan::Surface>(*instance, *window);
+    device = std::make_unique<Vulkan::Device>(instance->getDevices().front(), *surface);
+    swapChain = std::make_unique<Vulkan::SwapChain>(*device, *window);
+    graphicsPipeline = std::make_unique<Vulkan::GraphicsPipeline>(*device, *swapChain);
   }
 
   void Application::run() {

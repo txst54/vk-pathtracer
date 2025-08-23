@@ -21,6 +21,8 @@ namespace Vulkan {
       return window;
     }
 
+    [[nodiscard]] VkExtent2D getFramebufferSize() const;
+
   private:
     GLFWwindow *window;
   };

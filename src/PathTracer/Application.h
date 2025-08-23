@@ -7,9 +7,12 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <string>
 #include "../Vulkan/Instance.h"
 #include "../Vulkan/Window.h"
 #include "../Vulkan/Device.h"
+#include "../Vulkan/SwapChain.h"
+#include "../Vulkan/GraphicsPipeline.h"
 
 namespace PathTracer {
 class Application final
@@ -22,6 +25,13 @@ private:
   std::unique_ptr<Vulkan::Window> window;
   std::unique_ptr<Vulkan::Instance> instance;
   std::unique_ptr<Vulkan::Device> device;
+  std::unique_ptr<Vulkan::Surface> surface;
+  std::unique_ptr<Vulkan::SwapChain> swapChain;
+  std::unique_ptr<Vulkan::GraphicsPipeline> graphicsPipeline;
+
+  void createGraphicsPipeline();
+
+  VkShaderModule createShaderModule(const std::vector<char> &code);
 };
 }
 
